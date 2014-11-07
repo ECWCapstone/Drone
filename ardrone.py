@@ -12,7 +12,7 @@ class ARDrone:
 		navdata = struct.unpack_from("IIII", data, 0)
 
 		self.is_flying = navdata[1] & 1 == 1
-		self.is_emergency_mode = navdata[1] & 0x80000000
+		self.is_emergency_mode = navdata[1] & 0x80000000 == 1
 
 	def flat_trims_command(self):
 		msg = "AT*FTRIM=%d\r" % self.sequence_nbr
