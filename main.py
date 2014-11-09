@@ -32,7 +32,8 @@ while True:
 	
 	cmd = getch()
 
-	if ord(cmd) == 3:     # looking for ctrl + c
+	if ord(cmd) == 3:# looking for ctrl + c
+		drone.disconect()
 		sys.exit(0)
 
 	

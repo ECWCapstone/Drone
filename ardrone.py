@@ -18,8 +18,8 @@ class ARDrone:
 		self.ip_address = IP_ADDRESS;
 		self.ctrl_socket = socket.socket()
 		self.status_socket = socket.socket()
-		self.is_flying = mp.Value('b', False);
-		self.is_emergency_mode = mp.Value('b', False);
+		self.is_flying = mp.Value('b', False)
+		self.is_emergency_mode = mp.Value('b', False)
 
 
 	def connect(self):
@@ -79,7 +79,7 @@ class ARDrone:
 				msg = "AT*%s=%i%s\r" % (no_op_cmd[0],sequence_nbr,no_op_cmd[1])
 				sequence_nbr += 1
 				self.send_ctrl_cmd(msg)
-				time.sleep(.5)
+				time.sleep(.05)
 
 			else:
 				cmd_tup = queue.get()
@@ -94,11 +94,12 @@ class ARDrone:
 			self.__set_navdata(flying,emergency_mode)
 			time.sleep(.25)
 
-	def __exit__(self,type,value,traceback):
+	def disconect(self):
 
-		(thrd.cancel for thrd in self.threads)
-		
-
+		self.processes[0].terminate()
+		self.processes[1].terminate()
+		self.processes[0].join()
+		self.processes[1].join()
 		self.ctrl_socket.close()
 		self.status_socket.close()
-		
+	
