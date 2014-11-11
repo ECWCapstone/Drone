@@ -22,9 +22,9 @@ def getch():
 
 
 drone = ardrone.ARDrone()
-drone.connect()
-drone.run()
+drone.setup()
 drone.flat_trims()
+time.sleep(1)
 
 while True:
 
@@ -41,6 +41,8 @@ while True:
 		drone.land()
 	elif cmd == 't':
 		drone.take_off()
+	elif cmd == 'a':
+		drone.left()
 	else:
 		pass
 

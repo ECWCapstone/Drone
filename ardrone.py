@@ -22,13 +22,12 @@ class ARDrone:
 		self.is_emergency_mode = mp.Value('b', False)
 
 
-	def connect(self):
+	def setup(self):
 		self.ctrl_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.status_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.status_socket.bind(('', STATUS_PORT))
 		self.status_socket.sendto("\x01\x00\x00\x00", (self.ip_address, STATUS_PORT))
-
-	def run(self):
+		
 		p = mp.Process(target=self.send_from_queue, args=(self.cmd_queue,))  # Queue dispatch thread 
 		p2 = mp.Process(target=self.update_navdata, args=(self.is_flying,self.is_emergency_mode))  # Nav data listener thread
 
@@ -36,6 +35,7 @@ class ARDrone:
 		self.processes.append(p2)
 		p.start()
 		p2.start()
+		
 
 	def __set_navdata(self,flying,emergency_mode):
 		drone_info = dict()
@@ -46,26 +46,30 @@ class ARDrone:
 		emergency_mode = navdata[1] & 0x80000000 == 1
 
 	def flat_trims(self):    # Levels the trim for flight !!! Must be on the ground, level!!!
-		cmd_tup = ("FTRIM", "")
-		self.cmd_queue.put(cmd_tup)
+		self.enque_cmd("FTRIM", "")
 
 	def take_off(self):
 		take_off_int = 0b10001010101000000001000000000
-		cmd_tup = ("REF", (",%d" % take_off_int))
-		self.cmd_queue.put(cmd_tup)
+		self.enque_cmd("REF", (",%d" % take_off_int))
 
 	def land(self):
 		land_int = 0b10001010101000000000000000000
-		cmd_tup = ("REF", (",%d" % land_int))
-		self.cmd_queue.put(cmd_tup)
+		self.enque_cmd("REF", (",%d" % land_int))
+		
 
 	def emergency_stop(self):
 		stop_int = 0b10001010101000000000100000000
-		cmd_tup = ("REF", (",%d" % stop_int))
-		self.cmd_queue.put(cmd_tup)
+		self.enque_cmd("REF", (",%d" % stop_int))
+
+	def left(self):
+		self.enque_cmd("PCMD", ",3,-.3,0,.2,0")
+		
 
 	def hover(self):
-		cmd_tup = ("PCMD", ",0,0,0,0,0")
+		self.enque_cmd("PCMD", ",0,0,0,0,0")
+		
+	def enque_cmd(self, cmd_name, args):
+		cmd_tup = (cmd_name, args)
 		self.cmd_queue.put(cmd_tup)
 
 	def send_ctrl_cmd(self,msg):
@@ -86,8 +90,6 @@ class ARDrone:
 				msg = "AT*%s=%i%s\r" % (cmd_tup[0],sequence_nbr,cmd_tup[1])
 				sequence_nbr += 1
 				self.send_ctrl_cmd(msg)
-
-			
 
 	def update_navdata(self,flying,emergency_mode):
 		while True:
