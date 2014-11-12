@@ -62,7 +62,7 @@ class ARDrone:
 		self.enque_cmd("REF", (",%d" % stop_int))
 
 	def left(self):
-		self.enque_cmd("PCMD", ",3,-.3,0,.2,0")
+		self.enque_cmd("PCMD", ",%i,%f,%f,%f,%f" % (3,-.3,0,.2,0))
 		
 
 	def hover(self):
