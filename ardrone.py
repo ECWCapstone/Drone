@@ -62,22 +62,28 @@ class ARDrone:
 		self.enque_cmd("REF", (",%d" % stop_int))
 
 	def right(self): 
-		self.enque_cmd("PCMD" ",%i,%i,%f,%f,%f" % (1,1056964608,0,0,0))
+		self.enque_cmd("PCMD", movement_cmd(1,1056964608,0,0,0))
 
 	def left(self):
-		self.enque_cmd("PCMD", ",%i,%i,%f,%f,%f" % (1,-1090519040,0,0,0))
+		self.enque_cmd("PCMD", movement_cmd(1,-1090519040,0,0,0))
 		
 	def up(self):
-		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,1056964608,0))
+		self.enque_cmd("PCMD", movement_cmd(1,0,0,1056964608,0))
 
-	def down():
-		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,-1090519040,0))
+	def down(self):
+		self.enque_cmd("PCMD", movement_cmd(1,0,0,-1090519040,0))
+
+	def foward(self):
+		self.enque_cmd("PCMD", movement_cmd(1,0,1056964608,0,0))		
+
+	def backward(self):
+		self.enque_cmd("PCMD", movement_cmd(1,0,-1090519040,0,0))
 
 	def rotate_right(self):
-		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,0,1056964608))
+		self.enque_cmd("PCMD", movement_cmd(1,0,0,0,1056964608))
 
 	def rotate_left(self):
-		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,0,-1090519040))
+		self.enque_cmd("PCMD", movement_cmd(1,0,0,0,-1090519040))
 
 	def hover(self):
 		self.enque_cmd("PCMD", ",0,0,0,0,0")
@@ -88,6 +94,9 @@ class ARDrone:
 
 	def send_ctrl_cmd(self,msg):
 		self.ctrl_socket.sendto(msg, (self.ip_address,CTRL_PORT))
+
+	def movement_cmd(right,foward,up,spin):
+		return (",%i,%i,%i,%i,%i" % (1,right,foward,up,spin))		
 
 	def send_from_queue(self,queue):
 		sequence_nbr = 1
