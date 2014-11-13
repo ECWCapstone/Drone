@@ -36,14 +36,26 @@ while True:
 		sys.exit(0)
 
 	
-	if cmd == 'l' or cmd == 'L':
+	if cmd == 'g':
 		drone.land()
 	elif cmd == 't':
 		drone.take_off()
 	elif cmd == 'a':
 		drone.left()
-	elif cmd == ' ':
+	elif cmd == 'd':
+		drone.right()
+	elif cmd =='w'
+		drone.foward()
+	elif cmd == 's'
+		drone.backward()
+	elif cmd == 'i':
 		drone.up()
+	elif cmd == 'k'
+		drone.down()
+	elif cmd == 'j'
+		drone.rotate_left()
+	elif cmd == 'l'
+		drone.rotate_right()
 	elif cmd == 'e':
 		drone.emergency_stop()
 	else:
