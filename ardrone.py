@@ -61,9 +61,23 @@ class ARDrone:
 		stop_int = 0b10001010101000000000100000000
 		self.enque_cmd("REF", (",%d" % stop_int))
 
+	def right(self): 
+		self.enque_cmd("PCMD" ",%i,%i,%f,%f,%f" % (1,1056964608,0,0,0))
+
 	def left(self):
-		self.enque_cmd("PCMD", ",%i,%f,%f,%f,%f" % (3,-.3,0,.2,0))
+		self.enque_cmd("PCMD", ",%i,%i,%f,%f,%f" % (1,-1090519040,0,0,0))
 		
+	def up(self):
+		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,1056964608,0))
+
+	def down():
+		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,-1090519040,0))
+
+	def rotate_right(self):
+		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,0,1056964608))
+
+	def rotate_left(self):
+		self.enque_cmd("PCMD", ",%i,%i,%i,%i,%i" % (1,0,0,0,-1090519040))
 
 	def hover(self):
 		self.enque_cmd("PCMD", ",0,0,0,0,0")
@@ -83,13 +97,13 @@ class ARDrone:
 				msg = "AT*%s=%i%s\r" % (no_op_cmd[0],sequence_nbr,no_op_cmd[1])
 				sequence_nbr += 1
 				self.send_ctrl_cmd(msg)
-				time.sleep(.05)
 
 			else:
 				cmd_tup = queue.get()
 				msg = "AT*%s=%i%s\r" % (cmd_tup[0],sequence_nbr,cmd_tup[1])
 				sequence_nbr += 1
 				self.send_ctrl_cmd(msg)
+			time.sleep(.03)
 
 	def update_navdata(self,flying,emergency_mode):
 		while True:

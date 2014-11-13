@@ -43,6 +43,10 @@ while True:
 		drone.take_off()
 	elif cmd == 'a':
 		drone.left()
+	elif cmd == ' ':
+		drone.up()
+	elif cmd == 'e':
+		drone.emergency_stop()
 	else:
 		pass
 
