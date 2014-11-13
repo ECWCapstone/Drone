@@ -1,6 +1,5 @@
 import ardrone
 import sys
-import signal
 import time
 
 import sys, tty, termios
