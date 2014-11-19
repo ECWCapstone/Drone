@@ -81,10 +81,10 @@ class ARDrone:
 	def down(self):
 		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,-1090519040,0))
 
-	def foward(self):
+	def backward(self):
 		self.enqueue_cmd("PCMD", self.movement_cmd(0,1056964608,0,0))		
 
-	def backward(self):
+	def forward(self):
 		self.enqueue_cmd("PCMD", self.movement_cmd(0,-1090519040,0,0))
 
 	def rotate_right(self):
