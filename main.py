@@ -23,11 +23,12 @@ def getch():
 drone = ardrone.ARDrone()
 drone.setup()
 drone.flat_trims()
-time.sleep(1)
+time.sleep(3)
+
+print "Drone ready"
 
 while True:
 
-	
 	
 	cmd = getch()
 
@@ -39,22 +40,23 @@ while True:
 	if cmd == 'g':
 		drone.land()
 	elif cmd == 't':
+		print "Taking off"
 		drone.take_off()
 	elif cmd == 'a':
 		drone.left()
 	elif cmd == 'd':
 		drone.right()
-	elif cmd =='w'
+	elif cmd =='w':
 		drone.foward()
-	elif cmd == 's'
+	elif cmd == 's':
 		drone.backward()
 	elif cmd == 'i':
 		drone.up()
-	elif cmd == 'k'
+	elif cmd == 'k':
 		drone.down()
-	elif cmd == 'j'
+	elif cmd == 'j':
 		drone.rotate_left()
-	elif cmd == 'l'
+	elif cmd == 'l':
 		drone.rotate_right()
 	elif cmd == 'e':
 		drone.emergency_stop()

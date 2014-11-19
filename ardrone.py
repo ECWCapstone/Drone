@@ -1,5 +1,6 @@
 import struct
 import socket
+import signal
 
 import multiprocessing as mp
 import time
@@ -35,6 +36,13 @@ class ARDrone:
 		self.processes.append(p2)
 		p.start()
 		p2.start()
+
+		self.reset_alarm()
+		self.hover()	
+
+	def reset_alarm(self):
+		signal.signal(signal.SIGALRM, self.send_hover)
+		signal.setitimer(signal.ITIMER_REAL, 1.8)
 		
 
 	def __set_navdata(self,flying,emergency_mode):
@@ -46,73 +54,72 @@ class ARDrone:
 		emergency_mode = navdata[1] & 0x80000000 == 1
 
 	def flat_trims(self):    # Levels the trim for flight !!! Must be on the ground, level!!!
-		self.enque_cmd("FTRIM", "")
+		self.enqueue_cmd("FTRIM", "")
 
 	def take_off(self):
 		take_off_int = 0b10001010101000000001000000000
-		self.enque_cmd("REF", (",%d" % take_off_int))
+		self.enqueue_cmd("REF", (",%d" % take_off_int))
 
 	def land(self):
 		land_int = 0b10001010101000000000000000000
-		self.enque_cmd("REF", (",%d" % land_int))
+		self.enqueue_cmd("REF", (",%d" % land_int))
 		
 
 	def emergency_stop(self):
 		stop_int = 0b10001010101000000000100000000
-		self.enque_cmd("REF", (",%d" % stop_int))
+		self.enqueue_cmd("REF", (",%d" % stop_int))
 
 	def right(self): 
-		self.enque_cmd("PCMD", movement_cmd(1,1056964608,0,0,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(1056964608,0,0,0))
 
 	def left(self):
-		self.enque_cmd("PCMD", movement_cmd(1,-1090519040,0,0,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(-1090519040,0,0,0))
 		
 	def up(self):
-		self.enque_cmd("PCMD", movement_cmd(1,0,0,1056964608,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,1056964608,0))
 
 	def down(self):
-		self.enque_cmd("PCMD", movement_cmd(1,0,0,-1090519040,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,-1090519040,0))
 
 	def foward(self):
-		self.enque_cmd("PCMD", movement_cmd(1,0,1056964608,0,0))		
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,1056964608,0,0))		
 
 	def backward(self):
-		self.enque_cmd("PCMD", movement_cmd(1,0,-1090519040,0,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,-1090519040,0,0))
 
 	def rotate_right(self):
-		self.enque_cmd("PCMD", movement_cmd(1,0,0,0,1056964608))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,0,1056964608))
 
 	def rotate_left(self):
-		self.enque_cmd("PCMD", movement_cmd(1,0,0,0,-1090519040))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,0,-1090519040))
 
 	def hover(self):
-		self.enque_cmd("PCMD", ",0,0,0,0,0")
+		self.enqueue_cmd("PCMD", ",0,0,0,0,0")
+
+	def send_hover(self, signum, frame):
+		self.hover()
 		
-	def enque_cmd(self, cmd_name, args):
+	def enqueue_cmd(self, cmd_name, args):
 		cmd_tup = (cmd_name, args)
 		self.cmd_queue.put(cmd_tup)
 
 	def send_ctrl_cmd(self,msg):
 		self.ctrl_socket.sendto(msg, (self.ip_address,CTRL_PORT))
 
-	def movement_cmd(right,foward,up,spin):
+	def movement_cmd(self, right,foward,up,spin):
 		return (",%i,%i,%i,%i,%i" % (1,right,foward,up,spin))		
 
 	def send_from_queue(self,queue):
-		sequence_nbr = 1
-		no_op_cmd = ("PCMD", ",0,0,0,0,0")
+		sequence_nbr = 1;
 		while True:
-			if queue.empty():
-				msg = "AT*%s=%i%s\r" % (no_op_cmd[0],sequence_nbr,no_op_cmd[1])
-				sequence_nbr += 1
-				self.send_ctrl_cmd(msg)
-
-			else:
+			if not queue.empty():
 				cmd_tup = queue.get()
 				msg = "AT*%s=%i%s\r" % (cmd_tup[0],sequence_nbr,cmd_tup[1])
 				sequence_nbr += 1
 				self.send_ctrl_cmd(msg)
-			time.sleep(.03)
+				self.reset_alarm()
+				time.sleep(.03)
+			
 
 	def update_navdata(self,flying,emergency_mode):
 		while True:
