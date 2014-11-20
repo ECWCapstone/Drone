@@ -47,7 +47,7 @@ while True:
 	elif cmd == 'd':
 		drone.right()
 	elif cmd =='w':
-		drone.foward()
+		drone.forward()
 	elif cmd == 's':
 		drone.backward()
 	elif cmd == 'i':
