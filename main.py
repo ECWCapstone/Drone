@@ -59,11 +59,12 @@ while True:
 		elif cmd == 'l':
 			drone.rotate_right()
 		elif cmd == 'e':
-			drone.emergency_stop()
+			drone.emergency_stop() 
 		else:
 			pass
 	except Exception as e:
-		print type(e)           
+		print type(e)
+		print e.message           
 		print "It was Will's fault"
 	#drone.emergency_stop()
 	#time.sleep(.03) # dont overflow the queue

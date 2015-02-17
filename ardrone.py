@@ -15,6 +15,7 @@ class ARDrone:
 
 		self.cmd_queue = mp.Queue()
 		self.processes = []
+		self.speed = 0.5
 
 		self.ip_address = IP_ADDRESS;
 		self.ctrl_socket = socket.socket()
@@ -70,31 +71,37 @@ class ARDrone:
 		self.enqueue_cmd("REF", (",%d" % stop_int))
 
 	def right(self): 
-		self.enqueue_cmd("PCMD", self.movement_cmd(1056964608,0,0,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(self.speed,0,0,0))
 
 	def left(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(-1090519040,0,0,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(-self.speed,0,0,0))
 		
 	def up(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,1056964608,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,self.speed,0))
 
 	def down(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,-1090519040,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,-self.speed,0))
 
 	def backward(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(0,1056964608,0,0))		
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,self.speed,0,0))		
 
 	def forward(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(0,-1090519040,0,0))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,-self.speed,0,0))
 
 	def rotate_right(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,0,1056964608))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,0,self.speed))
 
 	def rotate_left(self):
-		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,0,-1090519040))
+		self.enqueue_cmd("PCMD", self.movement_cmd(0,0,0,-self.speed))
 
 	def hover(self):
 		self.enqueue_cmd("PCMD", ",0,0,0,0,0")
+
+	def set_speed(self,f):
+		if is_valid_speed(f):
+			self.speed = f
+		else: 
+			print ("Speed not valid, should range from 0 to 1, input was %f", f)
 
 	def send_hover(self, signum, frame):
 		self.hover()
@@ -107,7 +114,7 @@ class ARDrone:
 		self.ctrl_socket.sendto(msg, (self.ip_address,CTRL_PORT))
 
 	def movement_cmd(self, right,foward,up,spin):
-		return (",%i,%i,%i,%i,%i" % (1,right,foward,up,spin))		
+		return (",%i,%i,%i,%i,%i" % (1,f2i(float(right)),f2i(float(foward)),f2i(float(up)),f2i(float(spin))))		
 
 	def send_from_queue(self,queue):
 		sequence_nbr = 1;
@@ -135,3 +142,8 @@ class ARDrone:
 		self.ctrl_socket.close()
 		self.status_socket.close()
 	
+def is_valid_speed(speed):
+	return 0 <= speed <= 1
+
+def f2i(flo):
+	return struct.unpack('i',struct.pack('f',flo))[0]
